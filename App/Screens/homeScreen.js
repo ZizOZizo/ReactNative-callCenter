@@ -10,43 +10,95 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import AppPicker from "../Components/AppPicker";
-import AuthContext from "../auth/context";
-import getItems from "../API/getItems";
+import AuthContext from "../Auth/context.js";
+import getItems from "../API/getItems.js";
+import getStatuses from "../API/getStatuse.js";
+import getCities from "../API/getCities.js";
 
-const categories = [
-  { label: "Furniture", value: 1 },
-  { label: "Clothing", value: 2 },
-  { label: "Cameras", value: 3 },
+/*
+const statusCategories = [
+  { label: "الكل", value: "" },
+  { label: "في الطريق", value: "onway" },
+  { label: "مستلمة", value: "recived" },
+  { label: "مؤجلة", value: "posponded" },
+  { label: "راجع", value: "returned" },
+  { label: "في المخزن", value: "instorage" },
 ];
+*/
 
 function homeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const [items, setItems] = useState();
+  const [page, setPage] = useState(1);
+  const [statusCategories, setStatusCategories] = useState(); //all status catogories
+  const [statusCategory, setStatusCategory] = useState(""); //the selected status
+
+  const [cityCategories, setCityCategories] = useState(); //all status catogories
+  const [cityCategory, setCityCategory] = useState(""); //the selected status
+
+  const [testVariable, setTestVariable] = useState();
+
+  useEffect(() => {
+    bringStatuses();
+    bringCities();
+  }, []);
+
   useEffect(() => {
     bringItems();
   });
-  const bringItems = async () => {
-    const result = await getItems.getItems(user.token);
-    setItems(result.data.data);
+
+  const bringStatuses = async () => {
+    const result = await getStatuses.getStatuses(user.token);
+    setStatusCategories(result.data.data);
   };
 
-  const [category, setCategory] = useState(categories[0]);
+  const bringCities = async () => {
+    const result = await getCities.getCities(user.token);
+    setCityCategories(result.data.data);
+  };
+
+  const bringItems = async () => {
+    const result = await getItems.getItems(
+      user.token,
+      page,
+      statusCategory,
+      cityCategory
+    );
+    setItems(result.data.data);
+    console.log(result.data.data);
+  };
 
   return (
     <View>
       <Text style={styles.title}>أهــلا {user.data.name}</Text>
 
       <AppPicker
-        selectedItem={category}
-        onSelectItem={(item) => setCategory(item)}
-        items={categories}
+        selectedItem={statusCategory}
+        onSelectItem={(item) => {
+          setStatusCategory(item);
+          bringItems();
+        }}
+        items={statusCategories}
         icon="apps"
-        placeholder="Category"
+        placeholder="الحالة"
+      />
+
+      <AppPicker
+        selectedItem={cityCategory}
+        onSelectItem={(item) => {
+          setCityCategory(item);
+          bringItems();
+          console.log("Get cities ");
+        }}
+        items={cityCategories}
+        icon="apps"
+        placeholder="المحافظة"
       />
 
       <View style={styles.flatlist}>
         <FlatList
           data={items}
+          //onEndReached={}
           renderItem={({ item }) => (
             <TouchableHighlight
               onPress={() =>

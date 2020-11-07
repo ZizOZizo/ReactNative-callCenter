@@ -8,7 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import AuthContext from "../auth/context";
+import AuthContext from "../Auth/context.js";
 import loginApi from "../API/loginApi";
 
 export default function LoginScreen({ navigation }) {
@@ -24,6 +24,7 @@ export default function LoginScreen({ navigation }) {
     if (result.data.message != 1) {
       //WRONG USERNAME AND PASSWORD
       alert(result.data.message);
+      console.log(result.data);
       usernameRef.current.clear();
       passwordRef.current.clear();
     } else {
