@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+
 import {
   Text,
   View,
@@ -7,24 +8,22 @@ import {
   Linking,
   TouchableOpacity,
   TouchableHighlight,
+  Button,
+  TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import AppPicker from "../Components/AppPicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AppPicker from "../Components/AppPicker.js";
 import AuthContext from "../Auth/context.js";
 import getItems from "../API/getItems.js";
 import getStatuses from "../API/getStatuse.js";
 import getCities from "../API/getCities.js";
 
-/*
-const statusCategories = [
-  { label: "الكل", value: "" },
-  { label: "في الطريق", value: "onway" },
-  { label: "مستلمة", value: "recived" },
-  { label: "مؤجلة", value: "posponded" },
-  { label: "راجع", value: "returned" },
-  { label: "في المخزن", value: "instorage" },
+const enquiryCategories = [
+  { label: "لم يتم الاستعلام", value: 1 },
+  { label: "تم الاستعلام", value: 2 },
 ];
-*/
 
 function homeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -36,126 +35,273 @@ function homeScreen({ navigation }) {
   const [cityCategories, setCityCategories] = useState(); //all status catogories
   const [cityCategory, setCityCategory] = useState(""); //the selected status
 
+  const [isDateFromPickerVisible, setDateFromPickerVisibility] = useState(
+    false
+  );
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [isDateToPickerVisible, setDateToPickerVisibility] = useState(false);
+
+  const [searchText, setSearchText] = useState("");
+  const [enquiryCategory, setEnquiryCategory] = useState("");
+
+  const [loadingItems, setLoadingItems] = useState(true);
+
   const [testVariable, setTestVariable] = useState();
 
   useEffect(() => {
     bringStatuses();
     bringCities();
+    bringItems();
+    //console.log(statusCategories);
   }, []);
 
   useEffect(() => {
+    // setPage(1);
     bringItems();
-  });
+  }, [statusCategory]);
+
+  useEffect(() => {
+    // setPage(1);
+    bringItems();
+  }, [cityCategory]);
+
+  useEffect(() => {
+    bringItems();
+  }, [enquiryCategory]);
+
+  useEffect(() => {
+    bringItems();
+  }, [page]);
 
   const bringStatuses = async () => {
-    const result = await getStatuses.getStatuses(user.token);
+    const result = await getStatuses.getStatuses(user);
     setStatusCategories(result.data.data);
   };
 
   const bringCities = async () => {
-    const result = await getCities.getCities(user.token);
+    const result = await getCities.getCities(user);
     setCityCategories(result.data.data);
   };
 
   const bringItems = async () => {
+    setLoadingItems(true);
     const result = await getItems.getItems(
-      user.token,
+      user,
       page,
       statusCategory,
-      cityCategory
+      cityCategory,
+      dateFrom,
+      dateTo,
+      searchText,
+      enquiryCategory
     );
-    setItems(result.data.data);
-    console.log(result.data.data);
+    if (result.data.data) {
+      if (page == 1) {
+        setItems(result.data.data);
+      } else {
+        var itm = items;
+        for (var i = 0; i < result.data.data.length; i++) {
+          itm.push(result.data.data[i]);
+        }
+        //console.log(itm);
+        setItems(itm);
+      }
+    }
+    setLoadingItems(false);
+    //console.log(result.data.data);
+  };
+  const handleDateFromConfirm = (date) => {
+    var dt = new Date(date);
+    setDateFrom(dt.toLocaleDateString());
+    hideDatePicker();
+  };
+  const handleDateToConfirm = (date) => {
+    var dt = new Date(date);
+    setDateTo(dt.toLocaleDateString());
+    hideDatePicker();
+  };
+  const showDateFromPicker = () => {
+    setDateFromPickerVisibility(true);
+  };
+  const showDateToPicker = () => {
+    setDateToPickerVisibility(true);
+  };
+  const hideDatePicker = () => {
+    setDateFromPickerVisibility(false);
+    setDateToPickerVisibility(false);
   };
 
   return (
-    <View>
-      <Text style={styles.title}>أهــلا {user.data.name}</Text>
+    <View style={{ marginTop: 45 }}>
+      <View>
+        <View style={styles.searchView}>
+          <TextInput
+            onChangeText={(text) => setSearchText(text)}
+            placeholder="   ابحث عن رقم الوصل او رقم الزبون او سبب الراجع"
+            clearButtonMode="always"
+            style={{
+              height: 60,
+              width: "80%",
+              backgroundColor: "#ddd",
+              borderRadius: 15,
+              marginLeft: 3,
+              marginRight: 3,
+            }}
+          />
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+            }}
+          >
+            <Button
+              title={"ابــحــث"}
+              onPress={() => {
+                setPage(1);
+                bringItems();
+              }}
+              color="orange"
+              style={{}}
+            />
+          </View>
+        </View>
+        <View style={{ flexDirection: "row-reverse" }}>
+          <AppPicker
+            selectedItem={statusCategory}
+            onSelectItem={(item) => setStatusCategory(item)}
+            items={statusCategories}
+            icon="apps"
+            placeholder="حالة"
+          />
 
-      <AppPicker
-        selectedItem={statusCategory}
-        onSelectItem={(item) => {
-          setStatusCategory(item);
-          bringItems();
-        }}
-        items={statusCategories}
-        icon="apps"
-        placeholder="الحالة"
-      />
+          <AppPicker
+            selectedItem={cityCategory}
+            onSelectItem={(item) => setCityCategory(item)}
+            items={cityCategories}
+            icon="apps"
+            placeholder="محافظة"
+          />
 
-      <AppPicker
-        selectedItem={cityCategory}
-        onSelectItem={(item) => {
-          setCityCategory(item);
-          bringItems();
-          console.log("Get cities ");
-        }}
-        items={cityCategories}
-        icon="apps"
-        placeholder="المحافظة"
-      />
+          <AppPicker
+            selectedItem={enquiryCategory}
+            onSelectItem={(item) => setEnquiryCategory(item)}
+            items={enquiryCategories}
+            icon="apps"
+            placeholder="استعلام"
+          />
+        </View>
 
+        <View
+          style={{
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          <Button
+            title={" التاريخ: من " + dateFrom}
+            onPress={showDateFromPicker}
+            style={styles.datePicker}
+          />
+          <DateTimePickerModal
+            isVisible={isDateFromPickerVisible}
+            mode="date"
+            onConfirm={handleDateFromConfirm}
+            onCancel={hideDatePicker}
+          />
+          <Text> </Text>
+          <Button
+            title={" التاريخ: الى " + dateTo}
+            onPress={showDateToPicker}
+            style={styles.datePicker}
+          />
+          <DateTimePickerModal
+            isVisible={isDateToPickerVisible}
+            mode="date"
+            onConfirm={handleDateToConfirm}
+            onCancel={hideDatePicker}
+          />
+        </View>
+      </View>
       <View style={styles.flatlist}>
-        <FlatList
-          data={items}
-          //onEndReached={}
-          renderItem={({ item }) => (
-            <TouchableHighlight
-              onPress={() =>
-                navigation.navigate("ItemScreen", {
-                  itemSend: item,
-                })
-              }
-            >
-              <View style={styles.item}>
-                <View style={{ width: "30%" }}>
-                  <Text style={styles.itemContent}>{item.order_no}</Text>
-                  <Text style={styles.itemContent}>{item.address}</Text>
-                  <Text style={styles.itemContent}>{item.money_status}</Text>
-                </View>
-                <View
-                  style={{
-                    alignItems: "center",
-                    alignContent: "center",
-                    textAlign: "center",
-                    width: "30%",
-                  }}
-                >
-                  <Text style={styles.itemContent}>{item.store_name}</Text>
-                  <Text style={styles.itemContent}>{item.client_name}</Text>
-                  <Text style={styles.itemContent}>{item.status_name}</Text>
-                </View>
-
-                <View
-                  style={{
-                    alignItems: "flex-start",
-                    alignContent: "flex-start",
-                    width: "30%",
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() =>
-                      Linking.openURL("tel:" + item.customer_phone.toString())
-                    }
+        {!loadingItems && (
+          <FlatList
+            data={items}
+            onEndReached={() => setPage(page + 1)}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            renderItem={({ item }) => (
+              <TouchableHighlight
+                onPress={() =>
+                  navigation.navigate("ItemScreen", {
+                    itemSend: item,
+                  })
+                }
+              >
+                <View style={styles.item}>
+                  <View style={{ width: "30%" }}>
+                    <Text style={(styles.itemContent, { textAlign: "right" })}>
+                      {item.order_no}
+                    </Text>
+                    <Text style={styles.itemContent}>{item.city}</Text>
+                    <Text style={styles.itemContent}>{item.town}</Text>
+                  </View>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      alignContent: "center",
+                      textAlign: "center",
+                      //width: "30%",
+                    }}
                   >
-                    <Feather
-                      style={{
-                        backgroundColor: "#dc9696",
-                        borderRadius: 50,
-                        padding: 10,
-                      }}
-                      name="phone-call"
-                      size={45}
-                      color="black"
-                      backgroundColor="blue"
-                      borderRadius={50}
-                    />
-                  </TouchableOpacity>
+                    <Text style={styles.itemContent}>{item.client_name}</Text>
+                    <Text style={styles.itemContent}>{item.money_status}</Text>
+                    <Text style={styles.itemContent}>{item.status_name}</Text>
+                  </View>
+
+                  <View
+                    style={{
+                      alignItems: "flex-start",
+                      alignContent: "flex-start",
+                      //left: 60,
+                      //width: 10,
+                      flex: 1,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() =>
+                        Linking.openURL("tel:" + item.customer_phone.toString())
+                      }
+                    >
+                      <Feather
+                        style={{
+                          backgroundColor: "#dc9696",
+                          borderRadius: 50,
+                          padding: 10,
+                          width: 70,
+                        }}
+                        name="phone-call"
+                        size={45}
+                        color="black"
+                        backgroundColor="blue"
+                        borderRadius={50}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </TouchableHighlight>
-          )}
-        />
+              </TouchableHighlight>
+            )}
+          />
+        )}
+        {loadingItems && (
+          <ActivityIndicator
+            size="large"
+            color="#00ff00"
+            style={styles.activityIndicator}
+          />
+        )}
       </View>
     </View>
   );
@@ -179,27 +325,41 @@ const styles = StyleSheet.create({
   },
   itemContent: {
     fontSize: 18,
-    margin: 5,
+    margin: 3,
   },
   flatlist: {
     flexDirection: "row-reverse",
     margin: 10,
     padding: 10,
+    marginBottom: 358,
+    //flex: 1,
   },
   item: {
-    minWidth: 355,
-    maxWidth: 355,
+    //minWidth: 355,
+    //maxWidth: 355,
     fontSize: 18,
     backgroundColor: "#dddddd",
-    //margin: 8,
-    marginBottom: 10,
+    margin: 6,
+    //marginBottom: 10,
     borderRadius: 30,
     flexDirection: "row-reverse",
     //alignSelf: "stretch",
     //width: "100%",
-    padding: 8,
-    borderWidth: 1,
+    padding: 6,
+    paddingLeft: 10,
+    borderWidth: 0.4,
     borderColor: "red",
+  },
+
+  searchView: { flexDirection: "row-reverse", padding: 4, width: "100%" },
+
+  datePicker: { width: "50%", borderRadius: 50, margin: 6, padding: 6 },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 180,
+    width: 100,
   },
 });
 

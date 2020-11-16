@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import {
   SafeAreaView,
@@ -8,16 +8,24 @@ import {
   Text,
   Linking,
   TouchableOpacity,
-  Platform,
 } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
 
 function ItemScreen(props) {
   const route = useRoute();
+  const [statusEnquiry, setStatusEnquiry] = useState();
+
+  useEffect(() => {
+    setStatusEnquiry(route.params.itemSend.callcenter_id);
+  }, []);
+
+  const changeStatusEnquiry = async () => {
+    const result = await getCities.getCities(user);
+    setCityCategories(result.data.data);
+  };
+
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <Text style={styles.title}>تفاصيل الطلبية</Text>
         <View style={styles.part1}>
           <View style={styles.infoBit}>
             <Text style={styles.text1}>رقم الطلبية</Text>
@@ -90,6 +98,15 @@ function ItemScreen(props) {
             </Text>
           </View>
         </View>
+
+        {statusEnquiry == 0 && (
+          <View style={styles.part2}>
+            <TouchableOpacity onPress={() => alert("Go")}>
+              <AntDesign name="checkcircle" size={60} color="green" />
+              <Text style={{ fontSize: 20 }}>تم التحاسب</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -106,7 +123,12 @@ const styles = StyleSheet.create({
   },
   container: { top: 40 },
   part1: { backgroundColor: "#ddd", borderRadius: 30, margin: 2 },
-
+  part2: {
+    flexDirection: "row-reverse",
+    padding: 15,
+    alignContent: "center",
+    justifyContent: "center",
+  },
   infoBit: { flexDirection: "row-reverse", margin: "3%" },
   text1: {
     fontSize: 20,

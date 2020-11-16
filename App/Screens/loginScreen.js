@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import AuthContext from "../Auth/context.js";
-import loginApi from "../API/loginApi";
+import loginApi from "../API/loginApi.js";
+import AuthStorage from "../Auth/storage.js";
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState();
@@ -20,17 +21,24 @@ export default function LoginScreen({ navigation }) {
 
   const send = async () => {
     const result = await loginApi.loginApi(username, password);
-    console.log(result);
-    if (result.data.message != 1) {
-      //WRONG USERNAME AND PASSWORD
-      alert(result.data.message);
-      console.log(result.data);
+    //console.log(result);
+    if (result.data != null) {
+      if (result.data.message != 1) {
+        //WRONG USERNAME AND PASSWORD
+        alert(result.data.message);
+        //console.log(result.data);
+        usernameRef.current.clear();
+        passwordRef.current.clear();
+      } else {
+        // REDIRECT TO THE APPLICATION
+        AuthStorage.storeUser(result.data.token);
+        setUser(result.data.token);
+        //AuthStorage.storeUser(result.data);
+      }
+    } else {
+      alert("مشكلة في اتصال الانترنت!");
       usernameRef.current.clear();
       passwordRef.current.clear();
-    } else {
-      // REDIRECT TO THE APPLICATION
-      setUser(result.data);
-      //AuthStorage.storeUser(result.data);
     }
   };
 

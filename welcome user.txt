@@ -1,0 +1,10 @@
+<Text style={styles.title}>أهــلا {user.data.name}</Text>
+
+
+          <AppPicker
+            items={statusCategories}
+            onSelectItem={(item) => setStatusCategory(item)}
+            selectedItem={statusCategory}
+            icon="apps"
+            placeholder="حالة الطلب"
+          />
