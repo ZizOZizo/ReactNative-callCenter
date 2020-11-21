@@ -3,6 +3,7 @@ import "react-native-gesture-handler";
 import HomeScreen from "../Screens/homeScreen";
 import ItemScreen from "../Screens/ItemScreen";
 import AccountScreen from "../Screens/accountScreen";
+import ResetPasswordScreen from "../Screens/resetPassword";
 import ChatScreen from "../Screens/chatScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -31,7 +32,7 @@ const TabNavigator = () => (
   >
     <Tab.Screen
       name="AccountScreen"
-      component={AccountScreen}
+      component={AccountStackkNavigator}
       options={{
         title: "الحساب",
         tabBarIcon: ({ size, color }) => (
@@ -76,4 +77,20 @@ const MainStackNavigator = () => (
       options={{ title: "تفاصيل البضاعة" }}
     />
   </MainStack.Navigator>
+);
+
+const AccountStack = createStackNavigator();
+const AccountStackkNavigator = () => (
+  <AccountStack.Navigator>
+    <AccountStack.Screen
+      name="AccountScreen"
+      component={AccountScreen}
+      options={{ headerShown: false }}
+    />
+    <AccountStack.Screen
+      name="ResetPasswordScreen"
+      component={ResetPasswordScreen}
+      options={{ headerShown: false }}
+    />
+  </AccountStack.Navigator>
 );

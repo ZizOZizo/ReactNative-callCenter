@@ -46,6 +46,7 @@ function homeScreen({ navigation }) {
   const [enquiryCategory, setEnquiryCategory] = useState("");
 
   const [loadingItems, setLoadingItems] = useState(true);
+  const [viewedItem, setViewedItem] = useState();
 
   const [testVariable, setTestVariable] = useState();
 
@@ -57,17 +58,18 @@ function homeScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    // setPage(1);
-    bringItems();
+    setPage(1);
+    //bringItems();
   }, [statusCategory]);
 
   useEffect(() => {
-    // setPage(1);
-    bringItems();
+    setPage(1);
+    //bringItems();
   }, [cityCategory]);
 
   useEffect(() => {
-    bringItems();
+    setPage(1);
+    //bringItems();
   }, [enquiryCategory]);
 
   useEffect(() => {
@@ -99,17 +101,27 @@ function homeScreen({ navigation }) {
     if (result.data.data) {
       if (page == 1) {
         setItems(result.data.data);
+        //setViewedItem(result.data.data[1]);
       } else {
-        var itm = items;
+        let itms = [...items];
+        result.data.data.forEach((element) => {
+          itms.push(element);
+        });
+        setItems(itms);
+
+        //setItems(...items, ...result.data.data);
+
+        /*var itm = items;
         for (var i = 0; i < result.data.data.length; i++) {
           itm.push(result.data.data[i]);
         }
         //console.log(itm);
         setItems(itm);
+        */
       }
     }
     setLoadingItems(false);
-    //console.log(result.data.data);
+    //console.log(items);
   };
   const handleDateFromConfirm = (date) => {
     var dt = new Date(date);
@@ -131,6 +143,13 @@ function homeScreen({ navigation }) {
     setDateFromPickerVisibility(false);
     setDateToPickerVisibility(false);
   };
+
+  const flatlistEndReached = () => {
+    //setViewedItem(items[items.length - 1]);
+    setPage(page + 1);
+  };
+
+  //scrollToIndex = () => {};
 
   return (
     <View style={{ marginTop: 45 }}>
@@ -173,7 +192,7 @@ function homeScreen({ navigation }) {
             onSelectItem={(item) => setStatusCategory(item)}
             items={statusCategories}
             icon="apps"
-            placeholder="حالة"
+            placeholder="الحالة"
           />
 
           <AppPicker
@@ -181,7 +200,7 @@ function homeScreen({ navigation }) {
             onSelectItem={(item) => setCityCategory(item)}
             items={cityCategories}
             icon="apps"
-            placeholder="محافظة"
+            placeholder="المحافظة"
           />
 
           <AppPicker
@@ -189,7 +208,7 @@ function homeScreen({ navigation }) {
             onSelectItem={(item) => setEnquiryCategory(item)}
             items={enquiryCategories}
             icon="apps"
-            placeholder="استعلام"
+            placeholder="الاستعلام"
           />
         </View>
 
@@ -226,11 +245,11 @@ function homeScreen({ navigation }) {
           />
         </View>
       </View>
-      <View style={styles.flatlist}>
-        {!loadingItems && (
+      <View style={{ flexDirection: "column" }}>
+        <View style={styles.flatlist}>
           <FlatList
             data={items}
-            onEndReached={() => setPage(page + 1)}
+            onEndReached={() => flatlistEndReached()}
             contentContainerStyle={{ paddingBottom: 20 }}
             renderItem={({ item }) => (
               <TouchableHighlight
@@ -294,11 +313,12 @@ function homeScreen({ navigation }) {
               </TouchableHighlight>
             )}
           />
-        )}
+        </View>
+
         {loadingItems && (
           <ActivityIndicator
             size="large"
-            color="#00ff00"
+            color="#0000ff"
             style={styles.activityIndicator}
           />
         )}
@@ -329,10 +349,11 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     flexDirection: "row-reverse",
-    margin: 10,
-    padding: 10,
-    marginBottom: 358,
-    //flex: 1,
+    margin: 7,
+    padding: 7,
+    height: 470,
+    //marginBottom: 600,
+    //flex: 0,
   },
   item: {
     //minWidth: 355,
@@ -355,11 +376,11 @@ const styles = StyleSheet.create({
 
   datePicker: { width: "50%", borderRadius: 50, margin: 6, padding: 6 },
   activityIndicator: {
-    flex: 1,
+    //flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    height: 180,
-    width: 100,
+    //height: 180,
+    //width: 100,
   },
 });
 

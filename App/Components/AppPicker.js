@@ -67,16 +67,18 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: defaultStyles.colors.light,
     borderRadius: 25,
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     width: "33%",
-    padding: 15,
+    padding: 10,
     marginVertical: 10,
   },
   icon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   text: {
+    fontSize: 17,
     flex: 1,
+    textAlign: "right",
   },
 });
 

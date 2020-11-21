@@ -5,7 +5,9 @@ import AuthStorage from "../Auth/storage.js";
 import getProfile from "../API/getProfile.js";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-function accountScreen(props) {
+//import styles from "../config/styles.js";
+
+function accountScreen({ navigation }) {
   const { user, setUser } = useContext(AuthContext);
   const [profileName, setProfileName] = useState();
   const [profileNumber, setProfileNumber] = useState();
@@ -23,6 +25,13 @@ function accountScreen(props) {
   const handleLogout = () => {
     setUser(null);
     AuthStorage.removeUser();
+  };
+
+  const handleChangePassword = () => {
+    navigation.navigate("ResetPasswordScreen", {
+      userName: profileName,
+      userPhone: profileNumber,
+    });
   };
 
   return (
@@ -44,13 +53,24 @@ function accountScreen(props) {
           <Text style={styles.text}>{profileNumber}</Text>
         </View>
       </View>
-      <TouchableOpacity onPress={handleLogout}>
-        <View style={styles.logout}>
-          <Text style={{ fontSize: 20, color: "red", fontWeight: "bold" }}>
-            الخروج من الحساب
-          </Text>
-        </View>
-      </TouchableOpacity>
+
+      <View style={{ flexDirection: "row-reverse" }}>
+        <TouchableOpacity onPress={handleLogout}>
+          <View style={styles.logout}>
+            <Text style={{ fontSize: 20, color: "red", fontWeight: "bold" }}>
+              الخروج من الحساب
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleChangePassword}>
+          <View style={styles.logout}>
+            <Text style={{ fontSize: 20, color: "red", fontWeight: "bold" }}>
+              تغيير رمز الدخول
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -64,12 +84,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logout: {
-    margin: 5,
-    padding: 8,
+    margin: 9,
+    padding: 7,
     borderRadius: 20,
-    backgroundColor: "aqua",
+    backgroundColor: "#acf",
     elevation: 20,
-    marginTop: 80,
+    //marginTop: 80,
   },
   unit: {
     flexDirection: "row-reverse",
@@ -81,6 +101,15 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 19,
     padding: 2,
+  },
+  textField: {
+    //height: 60,
+    //width: "80%",
+    backgroundColor: "#ddd",
+    borderRadius: 5,
+    margin: 6,
+    height: 54,
+    textAlign: "right",
   },
 });
 export default accountScreen;

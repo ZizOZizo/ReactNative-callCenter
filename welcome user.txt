@@ -8,3 +8,9 @@
             icon="apps"
             placeholder="حالة الطلب"
           />
+
+
+
+            <AppText numberOfLines={1} style={styles.text}>
+              {selectedItem ? selectedItem.label : placeholder}
+            </AppText>
