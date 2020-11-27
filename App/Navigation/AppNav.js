@@ -5,6 +5,7 @@ import ItemScreen from "../Screens/ItemScreen";
 import AccountScreen from "../Screens/accountScreen";
 import ResetPasswordScreen from "../Screens/resetPassword";
 import ChatScreen from "../Screens/chatScreen";
+import ChatListScreen from "../Screens/chatListScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -24,6 +25,7 @@ const TabNavigator = () => (
   <Tab.Navigator
     initialRouteName="Home"
     tabBarOptions={{
+      keyboardHidesTabBar: true,
       activeBackgroundColor: "tomato",
       activeTintColor: "white",
       inactiveBackgroundColor: "#eee",
@@ -34,6 +36,7 @@ const TabNavigator = () => (
       name="AccountScreen"
       component={AccountStackkNavigator}
       options={{
+        keyboardHidesTabBar: true,
         title: "الحساب",
         tabBarIcon: ({ size, color }) => (
           <MaterialCommunityIcons name="account" size={size} color={color} />
@@ -44,6 +47,7 @@ const TabNavigator = () => (
       name="Home"
       component={MainStackNavigator}
       options={{
+        keyboardHidesTabBar: true,
         title: "الـرئـيـسـيـة",
         tabBarIcon: ({ size, color }) => (
           <MaterialCommunityIcons name="home" size={size} color="blue" />
@@ -51,8 +55,8 @@ const TabNavigator = () => (
       }}
     />
     <Tab.Screen
-      name="ChatScreen"
-      component={ChatScreen}
+      name="Chat"
+      component={ChatStackkNavigator}
       options={{
         title: "المحادثات",
         tabBarIcon: ({ size, color }) => (
@@ -93,4 +97,20 @@ const AccountStackkNavigator = () => (
       options={{ headerShown: false }}
     />
   </AccountStack.Navigator>
+);
+
+const ChatStack = createStackNavigator();
+const ChatStackkNavigator = () => (
+  <ChatStack.Navigator>
+    <ChatStack.Screen
+      name="ChatListScreen"
+      component={ChatListScreen}
+      options={{ headerShown: false }}
+    />
+    <ChatStack.Screen
+      name="ChatScreen"
+      component={ChatScreen}
+      options={{ headerShown: false }}
+    />
+  </ChatStack.Navigator>
 );

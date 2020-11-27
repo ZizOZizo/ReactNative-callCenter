@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-
 import {
   Text,
   View,
@@ -289,7 +288,7 @@ function homeScreen({ navigation }) {
                       flex: 1,
                     }}
                   >
-                    <TouchableOpacity
+                    <TouchableHighlight
                       onPress={() =>
                         Linking.openURL("tel:" + item.customer_phone.toString())
                       }
@@ -307,7 +306,7 @@ function homeScreen({ navigation }) {
                         backgroundColor="blue"
                         borderRadius={50}
                       />
-                    </TouchableOpacity>
+                    </TouchableHighlight>
                   </View>
                 </View>
               </TouchableHighlight>

@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import {
   SafeAreaView,
@@ -8,19 +8,36 @@ import {
   Text,
   Linking,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import postStatusEnquiry from "../API/postStatusEnquiry";
+import AuthContext from "../Auth/context.js";
 
-function ItemScreen(props) {
+function ItemScreen({ navigation }) {
   const route = useRoute();
   const [statusEnquiry, setStatusEnquiry] = useState();
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     setStatusEnquiry(route.params.itemSend.callcenter_id);
+    //console.log(route.params.itemSend);
   }, []);
 
   const changeStatusEnquiry = async () => {
-    const result = await getCities.getCities(user);
-    setCityCategories(result.data.data);
+    const result = await postStatusEnquiry.postStatusEnquiry(
+      user,
+      route.params.itemSend.id
+    );
+    //console.log(result);
+    if (result.status != 200) {
+      Alert("هنالك مشكلة في الاتصال");
+    } else {
+      setStatusEnquiry(1);
+    }
+  };
+
+  const goToChat = () => {
+    navigation.navigate("ChatScreen", { itemSendChat: route.params.itemSend });
   };
 
   return (
@@ -99,14 +116,22 @@ function ItemScreen(props) {
           </View>
         </View>
 
-        {statusEnquiry == 0 && (
+        <View style={{ flexDirection: "row", alignSelf: "center" }}>
+          {statusEnquiry == 0 && (
+            <View style={styles.part2}>
+              <TouchableOpacity onPress={() => changeStatusEnquiry()}>
+                <AntDesign name="checkcircle" size={60} color="green" />
+                <Text style={{ fontSize: 20 }}>تم التحاسب</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           <View style={styles.part2}>
-            <TouchableOpacity onPress={() => alert("Go")}>
-              <AntDesign name="checkcircle" size={60} color="green" />
-              <Text style={{ fontSize: 20 }}>تم التحاسب</Text>
+            <TouchableOpacity onPress={() => goToChat()}>
+              <AntDesign name="message1" size={60} color="grey" />
+              <Text style={{ fontSize: 20 }}>الرسالة</Text>
             </TouchableOpacity>
           </View>
-        )}
+        </View>
       </View>
     </SafeAreaView>
   );

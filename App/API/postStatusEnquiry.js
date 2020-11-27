@@ -1,15 +1,15 @@
 import client from "./client";
 
-const endpoint = "/chat.php";
+const endpoint = "/setCallCenterCheck.php";
 
-const getAllChat = (token, page) => {
+const postStatusEnquiry = (token, orderId) => {
   const formData = new FormData();
   formData.append("token", token);
-  formData.append("page", page);
+  formData.append("orderid", orderId);
   return client.post(endpoint, formData);
   //console.log(client.post(endpoint, formData));
 };
 
 export default {
-  getAllChat,
+  postStatusEnquiry,
 };
